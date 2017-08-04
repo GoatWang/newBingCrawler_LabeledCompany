@@ -120,6 +120,9 @@ class newBingCrawler:
             fail_log.put({self.filename:self.failLinks})
             
             ## Stroe unprocessed file into comapnyEmbedding 
+            if not os.path.isdir("comapnyEmbedding"):
+                os.mkdir("comapnyEmbedding")
+
             targetDirectory1 = "comapnyEmbedding/" + self.targetCompany
             if not os.path.isdir(targetDirectory1):
                 os.mkdir(targetDirectory1)
@@ -136,6 +139,9 @@ class newBingCrawler:
             file.close()
 
             ## Stroe processed file into processedCompanyEmbedding 
+            if not os.path.isdir("processedCompanyEmbedding"):
+                os.mkdir("processedCompanyEmbedding")
+                
             targetDirectory2 = "processedCompanyEmbedding/" + self.targetCompany
             if not os.path.isdir(targetDirectory2):
                 os.mkdir(targetDirectory2)
@@ -172,6 +178,7 @@ while True:
             logs.append(logLi)
     except:
         break
+
 nowtime = datetime.datetime.now()
 filetime = str(nowtime).split()[0].replace("-","") + str(nowtime).split()[1].split(":")[0] + str(nowtime).split()[1].split(":")[1]
 with open(filetime + "Crawling.log", 'w', encoding='utf8') as fp:
