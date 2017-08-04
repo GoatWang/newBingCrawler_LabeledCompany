@@ -13,6 +13,7 @@ import string
 from preprocessing import preprocessing
 import json
 import datetime
+from setting_selenium import cross_selenium
 
 ## Build Queue
 input_companies = queue.Queue()
@@ -70,8 +71,10 @@ class newBingCrawler:
 
         async def main(loop):
             #driver = webdriver.Chrome()
-            #driver = webdriver.PhantomJS()
-            driver = webdriver.PhantomJS(executable_path="D:\\phantomjs.exe")
+            # driver = webdriver.PhantomJS()
+            driver = cross_selenium()
+
+            # driver = webdriver.PhantomJS(executable_path="D:\\phantomjs.exe")
             url = "https://www.bing.com/"
             driver.get(url)
             elem = driver.find_element_by_xpath('//*[@id="sb_form_q"]')
@@ -141,7 +144,7 @@ class newBingCrawler:
             ## Stroe processed file into processedCompanyEmbedding 
             if not os.path.isdir("processedCompanyEmbedding"):
                 os.mkdir("processedCompanyEmbedding")
-                
+
             targetDirectory2 = "processedCompanyEmbedding/" + self.targetCompany
             if not os.path.isdir(targetDirectory2):
                 os.mkdir(targetDirectory2)
