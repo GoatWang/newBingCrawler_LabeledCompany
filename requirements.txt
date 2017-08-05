@@ -2,7 +2,6 @@ requests==2.12.5
 html5lib
 aiohttp
 asyncio
-async_timeout
 queue
 threading
 random
