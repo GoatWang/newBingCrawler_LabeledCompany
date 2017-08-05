@@ -6,7 +6,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-# *.log
 comapnyEmbedding/
 processedCompanyEmbedding/
 __pycache__/
