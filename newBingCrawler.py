@@ -195,9 +195,9 @@ nowtime = datetime.datetime.now()
 filetime = str(nowtime).split()[0].replace("-","") + str(nowtime).split()[1].split(":")[0] + str(nowtime).split()[1].split(":")[1]
 
 faillogs = QueueTramsfering(fail_log)
-with open("logs/" + filetime + "FailLink.log", 'w', encoding='utf8') as fp:
+with open("logs/" + filetime + "FailLink.txt", 'w', encoding='utf8') as fp:
     json.dump(faillogs, fp)
 
 emptylogs = QueueTramsfering(empty_log)
-with open("logs/" + filetime + "Empty.log", 'w', encoding='utf8') as fp:
+with open("logs/" + filetime + "Empty.txt", 'w', encoding='utf8') as fp:
     json.dump(emptylogs, fp)
