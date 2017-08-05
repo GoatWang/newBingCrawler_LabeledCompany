@@ -54,8 +54,15 @@ def preprocessing(companyStr):
 
     companyStr = companyStr.lower().strip()
     companyStr.replace('®','')
-    wordArr = [lemmer.lemmatize(i) for i in companyStr.split() if ((i not in stops) and (not isfilter(i))) ]
-    paramStr = ' '.join(wordArr)
+    # wordArr = [lemmer.lemmatize(i) for i in companyStr.split() if ((i not in stops) and (not isfilter(i))) ]
+    # paramStr = ' '.join(wordArr)
+    paramStr = ""
+    for i in companyStr.split():
+        try:
+            if ((i not in stops) and (not isfilter(i))):
+                paramStr += lemmer.lemmatize(i)+ " "
+        except:
+            continue
 
     return companyStr
 

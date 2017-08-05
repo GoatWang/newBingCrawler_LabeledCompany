@@ -1,28 +1,41 @@
+#multiprocessing and async
 import aiohttp
 import asyncio
 import async_timeout
+import queue
+import threading
+import random
+
+# data processing
+import pandas as pd
+from bs4 import BeautifulSoup
+from selenium import webdriver
+
+#write file
+import string
+import json
 import os
 from os import listdir
 import time
-from bs4 import BeautifulSoup
-from selenium import webdriver
-import queue
-import threading
-import pandas as pd
-import string
-from preprocessing import preprocessing
-import json
 import datetime
+
+#user write
 from setting_selenium import cross_selenium
+from preprocessing import preprocessing
+from QueueTransfering import QueueTramsfering
+
 
 ## Build Queue
 input_companies = queue.Queue()
 fail_log = queue.Queue()
+empty_log = queue.Queue()
 
 ## Fill Queue with companyDict
 files = listdir("labelData")
 files = [file for file in files if "csv" in file]
-for file in files:
+# for file in files:
+for file in files[1:2]:
+    print(file)
     df_comps = pd.read_csv("labelData/" + file, index_col=None, header=None)
 
     companyTupleList = []
@@ -47,8 +60,10 @@ for file in files:
         input_companies.put(companyDict)
 
 class newBingCrawler:
-    def __init__(self, loop):
-        self.loop = loop  ##self.loop
+    # def __init__(self, loop):
+    #     self.loop = loop  ##self.loop
+    def __init__(self):
+        self.loop = asyncio.new_event_loop()
 
     def __call__(self):
         async def fetch_coroutine(client, url):
@@ -70,11 +85,7 @@ class newBingCrawler:
                     self.failLinks.append(url)
 
         async def main(loop):
-            #driver = webdriver.Chrome()
-            # driver = webdriver.PhantomJS()
             driver = cross_selenium()
-
-            # driver = webdriver.PhantomJS(executable_path="D:\\phantomjs.exe")
             url = "https://www.bing.com/"
             driver.get(url)
             elem = driver.find_element_by_xpath('//*[@id="sb_form_q"]')
@@ -100,7 +111,8 @@ class newBingCrawler:
             async with aiohttp.ClientSession(loop=loop, headers=headers, conn_timeout=5 ) as client:
                 tasks = [fetch_coroutine(client, url) for url in urls]
                 await asyncio.gather(*tasks)
- 
+        
+
         while True:
             try:
                 self.companyAnnotation = input_companies.get(timeout=1)   ##Build self.query
@@ -119,9 +131,11 @@ class newBingCrawler:
             ## start running loop
             self.loop.run_until_complete(main(self.loop))
 
-            ## After loop
-            fail_log.put({self.filename:self.failLinks})
-            
+            ## After loop: write log
+            fail_log.put((self.targetCompany, self.filename, self.failLinks))
+            if self.companyInfo == "":
+                empty_log.put(self.targetCompany + "/" + self.filename)
+
             ## Stroe unprocessed file into comapnyEmbedding 
             if not os.path.isdir("comapnyEmbedding"):
                 os.mkdir("comapnyEmbedding")
@@ -162,28 +176,28 @@ class newBingCrawler:
 
             print(id(self), self.comapanyName + " success")
 
+
+starttime = time.time()
 threads = []
-for i in range(7):
-    loop = asyncio.new_event_loop()
-    #loop = asyncio.get_event_loop()
-    newthread = threading.Thread(target=newBingCrawler(loop))
+for i in range(4):
+    newthread = threading.Thread(target=newBingCrawler())
     newthread.start()
     threads.append(newthread)
 
 for thread in threads:
     thread.join()
+endtime = time.time()
+print(endtime - starttime)
 
-logs = []
-while True:
-    try:
-        logLi = fail_log.get(timeout=1)
-        if logLi != []:
-            logs.append(logLi)
-    except:
-        break
 
+## log writing
 nowtime = datetime.datetime.now()
 filetime = str(nowtime).split()[0].replace("-","") + str(nowtime).split()[1].split(":")[0] + str(nowtime).split()[1].split(":")[1]
-with open(filetime + "Crawling.log", 'w', encoding='utf8') as fp:
-    json.dump(logs, fp)
 
+faillogs = QueueTramsfering(fail_log)
+with open("logs/" + filetime + "FailLink.log", 'w', encoding='utf8') as fp:
+    json.dump(faillogs, fp)
+
+emptylogs = QueueTramsfering(empty_log)
+with open("logs/" + filetime + "Empty.log", 'w', encoding='utf8') as fp:
+    json.dump(emptylogs, fp)
