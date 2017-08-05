@@ -1,9 +1,7 @@
-requests==2.12.5
+requests
 html5lib
 aiohttp
 asyncio
-threading
-random
 pandas
 bs4
 selenium
