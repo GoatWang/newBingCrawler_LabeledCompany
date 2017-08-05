@@ -34,7 +34,7 @@ empty_log = queue.Queue()
 files = listdir("labelData")
 files = [file for file in files if "csv" in file]
 # for file in files:
-for file in files[1:2]:
+for file in files[1:10]:
     print(file)
     df_comps = pd.read_csv("labelData/" + file, index_col=None, header=None)
 
@@ -179,7 +179,7 @@ class newBingCrawler:
 
 starttime = time.time()
 threads = []
-for i in range(4):
+for i in range(2):
     newthread = threading.Thread(target=newBingCrawler())
     newthread.start()
     threads.append(newthread)
