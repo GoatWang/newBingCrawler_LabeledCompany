@@ -22,7 +22,8 @@ import datetime
 #user write
 from setting_selenium import cross_selenium
 from preprocessing import preprocessing
-from QueueTransfering import QueueTramsfering
+from crawlerUtl import QueueTramsfering
+from crawlerUtl import BingLinkParser
 
 
 ## Build Queue
@@ -33,9 +34,9 @@ empty_log = queue.Queue()
 ## Fill Queue with companyDict
 files = listdir("labelData")
 files = [file for file in files if "csv" in file]
-# for file in files:
-for file in files[1:10]:
-    print(file)
+for file in files:
+# for file in files[1:10]:
+    # print(file)
     df_comps = pd.read_csv("labelData/" + file, index_col=None, header=None)
 
     companyTupleList = []
@@ -86,26 +87,8 @@ class newBingCrawler:
 
         async def main(loop):
             driver = cross_selenium()
-            url = "https://www.bing.com/"
-            driver.get(url)
-            elem = driver.find_element_by_xpath('//*[@id="sb_form_q"]')
-            elem.send_keys(self.query)
-            elem = driver.find_element_by_xpath('//*[@id="sb_form_go"]')
-            elem.submit()
-            html = driver.page_source
-            driver.close()
+            urls = BingLinkParser(driver, self.query)
 
-            soup = BeautifulSoup(html, 'lxml')
-            Links = soup.find_all('a')
-
-            Goodlinks = []
-            for link in Links:
-                linkstr = str(link)
-                if (('http' in linkstr) and ('href' in linkstr) and (not 'href="#"' in linkstr) and (not 'href="http://go.microsoft' in linkstr)and (not 'microsofttranslator' in linkstr)):
-                    Goodlinks.append(link)
-
-            urls = [link['href'] for link in Goodlinks]
-            #print(self.query, "Good links have been found!")
 
             headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
             async with aiohttp.ClientSession(loop=loop, headers=headers, conn_timeout=5 ) as client:
@@ -179,7 +162,7 @@ class newBingCrawler:
 
 starttime = time.time()
 threads = []
-for i in range(2):
+for i in range(4):
     newthread = threading.Thread(target=newBingCrawler())
     newthread.start()
     threads.append(newthread)
