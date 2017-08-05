@@ -88,8 +88,6 @@ class newBingCrawler:
         async def main(loop):
             driver = cross_selenium()
             urls = BingLinkParser(driver, self.query)
-
-
             headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
             async with aiohttp.ClientSession(loop=loop, headers=headers, conn_timeout=5 ) as client:
                 tasks = [fetch_coroutine(client, url) for url in urls]
