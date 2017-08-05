@@ -33,8 +33,8 @@ empty_log = queue.Queue()
 ## Fill Queue with companyDict
 files = listdir("labelData")
 files = [file for file in files if "csv" in file]
-for file in files:
-# for file in files[1:2]:
+# for file in files:
+for file in files[1:2]:
     print(file)
     df_comps = pd.read_csv("labelData/" + file, index_col=None, header=None)
 
